@@ -49,7 +49,12 @@ function Obstacles(game, x, y, key,type) {
 		this.body.checkCollision.right = false;
 		this.body.checkCollision.down = false;
 	}
+	this.modified = false;
+	if(this.type=='wallride'||this.type=='grind'||this.type=='longjump'||this.type=='hack')
+		this.modified = true;
+	front_obstacle.push(this);
 	game.add.existing(this);	
+	
 }
 Obstacles.prototype = Object.create(Phaser.Sprite.prototype);
 Obstacles.prototype.constructor = Obstacles;
@@ -83,14 +88,22 @@ Obstacles.prototype.update = function(){
 		if(this.x-player.x>0&&this.x-player.x<64){
 			this.kill()
 			this.destroy()
+			if (front_obstacle[0]!=null&&this==front_obstacle[0]){
+				front_obstacle.shift()
+			}
 		}
 	}
 	if(this.type=='hack'&&player.hacking==true){
 		if(this.x-player.x>0&&this.x-player.x<64){
 			this.kill()
 			this.destroy()
+			if (front_obstacle[0]!=null&&this==front_obstacle[0]){
+				front_obstacle.shift()
+			}
 		}
 	}
+	
+
 	
 	if(this.x<-300){
 		this.kill();
@@ -99,6 +112,7 @@ Obstacles.prototype.update = function(){
 	}
 	if(overlapping&&!this.collided){
 		objects_hit++;
+		player.hit = true;
 		this.collided=true;
 		text.setText("Objects hit: "+objects_hit);
 	}

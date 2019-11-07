@@ -1,0 +1,7 @@
+Bugs list:
+Long jump can be used in place of grind
+Hack can be used forever
+Ducking right before a special action causes issues, as it leads to the next immediately.
+
+To do:
+Add hold stuff 
