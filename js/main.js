@@ -4,6 +4,7 @@ var held = []; // doing this because I legit forgot how to phaser
 var objects_hit = 0;
 for(let i = 0; i <8; i++)
 	held[i] = false;
+var front_obstacle = [];
 function preload() {
 	game.load.image('block', 'assets/img/block.png');
 	game.load.image('star', 'assets/img/star.png');
@@ -55,6 +56,15 @@ function update() {
 		}
 		if (inputs[i].isUp){
 			held[i] = false;
+		}
+	}
+	if(front_obstacle[0]!=null){
+		console.log(front_obstacle[0].type);
+		if(front_obstacle[0]!=null){
+			if(front_obstacle[0].body.x<=player.body.x){
+			front_obstacle[0].queued = false;
+			front_obstacle.shift();
+			}
 		}
 	}
 }
