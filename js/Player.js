@@ -4,10 +4,31 @@ function Player(game, x, y, key) {
 	this.anchor.y = 0.5;
 	this.scale.setTo(2); // just because the star is small
 	game.physics.enable(this);
+	
+	this.hitline = game.add.sprite(128+x,y,'hitline');
+	
+	game.add.existing(this);
+	
+	this.up = game.input.keyboard.isDown(Phaser.Keyboard.UP) ;
+	this.down = game.input.keyboard.isDown(Phaser.Keyboard.DOWN) ;
+	this.lefty = game.input.keyboard.isDown(Phaser.Keyboard.LEFT) ; // built-in phaser stuff strikes again
+	this.righty = game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) ;
+	this.hold_up = game.input.keyboard.isDown(Phaser.Keyboard.UP) ;
+	this.hold_down = game.input.keyboard.isDown(Phaser.Keyboard.DOWN) ;
+	this.hold_lefty = game.input.keyboard.isDown(Phaser.Keyboard.LEFT) ; // built-in phaser stuff strikes again
+	this.hold_righty = game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) ;
+	
+	this.holding = false;
+	
+	this.delayTimer = 0; 
+	this.delay = 0.5
+	
+	// I'll finish removing these last few physic components later
 	this.default_gravity = 5800;
 	this.body.gravity.y = this.default_gravity; // apparently this little star is Goku
 	
 	this.grounded = false;
+	/* Physics system
 	
 	// duck handling stuff
 	this.duckTime = 0;
@@ -39,7 +60,7 @@ function Player(game, x, y, key) {
 	this.hit = false;
 	this.hitTime = 1;
 	this.hitTimeTracker = 0;
-	game.add.existing(this);
+	*/
 	
 }
 
@@ -48,10 +69,11 @@ Player.prototype.constructor = Player;
 
 Player.prototype.update = function(){
 	this.movement();
-	this.hurt();
+	//this.hurt();
 }
 
 Player.prototype.hurt = function(){
+	/*
 	if(this.hit){
 		this.hitTimeTracker = game.time.now + this.hitTime * 1000;
 		this.hit = false;
@@ -61,7 +83,7 @@ Player.prototype.hurt = function(){
 		this.alpha= Math.abs(Math.sin((game.time.now/100)*Math.PI)); // normalizes it so that it happens every second if the number is 1000. 500 is every 2 seconds and so on.
 	}else{
 		this.alpha = 1;
-	}
+	}*/
 	// if(front_obstacle[0]!=null){
 		// if(front_obstacle[0].modified)
 			// console.log("hey");
@@ -69,8 +91,92 @@ Player.prototype.hurt = function(){
 			// console.log("yo");
 	// }
 }
-
+function nullCheck(){
+	return front_obstacle[0]!=null
+}
+Player.prototype.hitCheck = function(type){
+	if(nullCheck()&&Math.abs(this.hitline.x-front_obstacle[0].x)<64){
+		if(nullCheck()&&front_obstacle[0].type==type){
+			front_obstacle[0].queued = false;
+			front_obstacle[0].missed = 0;
+			front_obstacle.shift();
+			console.log("hit");
+			
+		}		
+	}else if(nullCheck()&&Math.abs(this.hitline.x-front_obstacle[0].x)<192){
+		if(nullCheck()&&front_obstacle[0].type==type){
+			front_obstacle[0].missed = 1;
+			front_obstacle[0].queued = false;
+			front_obstacle.shift();
+			console.log("missed");
+		}
+	}
+}
 Player.prototype.movement = function(){
+	this.up = game.input.keyboard.justPressed(Phaser.Keyboard.UP) ;
+	this.down = game.input.keyboard.justPressed(Phaser.Keyboard.DOWN) ;
+	this.lefty = game.input.keyboard.justPressed(Phaser.Keyboard.LEFT) ;
+	this.righty = game.input.keyboard.justPressed(Phaser.Keyboard.RIGHT) ;
+	this.hold_up = game.input.keyboard.isDown(Phaser.Keyboard.UP) ;
+	this.hold_down = game.input.keyboard.isDown(Phaser.Keyboard.DOWN) ;
+	this.hold_lefty = game.input.keyboard.isDown(Phaser.Keyboard.LEFT) ;
+	this.hold_righty = game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) ;
+	if(nullCheck()&&this.delayTimer<game.time.now){
+		if(this.up||this.down||this.lefty||this.righty){
+			this.delayTimer = game.time.now + this.delay*1000
+			if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
+				if(this.hold_up){ // long jump
+					if(Math.abs(this.hitline.x-front_obstacle[0].x)<64){
+						
+						if(nullCheck()&&front_obstacle[0].type=="longjump"){
+							front_obstacle[0].started = true;
+							this.holding = true;
+						
+						}
+					}
+				}else 
+				if(this.hold_lefty){ // wall run
+					if(nullCheck()&&front_obstacle[0].type=="wallride"){
+							front_obstacle[0].started = true;
+							this.holding = true;
+						
+						}
+				}else
+				if(this.hold_down){ // grind
+					if(nullCheck()&&front_obstacle[0].type=="grind"){
+						front_obstacle[0].started = true;
+						this.holding = true;
+					
+					}
+				}else
+				if(this.hold_righty){ // hack
+					if(nullCheck()&&front_obstacle[0].type=="hack"){
+						front_obstacle[0].started = true;
+						this.holding = true;
+					
+					}
+				}
+			}else{
+			
+				if(this.up){ // jump
+					this.hitCheck("jump");
+				}
+				if(this.down){ // duck
+					this.hitCheck("duck");
+				}
+				if(this.lefty){ // side step
+					this.hitCheck("sidestep");
+				}
+				if(this.righty){ // punch
+					this.hitCheck("punch");
+				}
+			}
+		}
+	}
+	if(nullCheck()&&front_obstacle[0].started&&!this.hold_lefty&&!this.hold_up&&!this.hold_down&&!this.hold_righty){
+		this.holding = false;
+	}
+	/* Physics system
 	if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
 	//if(front_obstacle[0]!=null&&front_obstacle[0].modified){
 		//console.log("hi")
@@ -153,5 +259,5 @@ Player.prototype.movement = function(){
 		this.body.gravity.y = 5800;
 	}
 
-	
+	*/
 }
