@@ -71,7 +71,7 @@ Obstacles.prototype.update = function(){
 	if(this.x<-300){
 		this.kill();
 		this.destroy();
-		if(this.missed ==	 2){
+		if(this.missed == 2){
 			console.log("missed")
 		}
 	}

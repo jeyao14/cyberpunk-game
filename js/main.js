@@ -15,21 +15,22 @@ function preload() {
 	game.load.image('grind', 'assets/img/duck.png');
 	game.load.image('wallride', 'assets/img/sidestep.png');
 	game.load.image('hack', 'assets/img/punch.png');
-	game.load.image('star', 'assets/img/star.png');
+	game.load.image('star', 'assets/img/run.png');
 	game.load.image('floor', 'assets/img/floor.png');
 	game.load.image('hitline', 'assets/img/hitline.png');
 	game.load.audio('30bpmsong', 'assets/audio/30BPMMetronome.mp3');
+	game.load.atlas('playerAtlas','assets/img/spritesheet.png','assets/img/sprites.json')
 }
 
 function create() {
 	game.stage.backgroundColor = "#292633";
 	floor = game.add.sprite(0,240,'floor');
-	
+	//temp = game.add.sprite(200,240,'playerAtlas','run');
 	floor.anchor.x = 0;
 	floor.anchor.y = 0;
 	game.physics.enable(floor); // I cannot for the life of me remember how to basic collision for phaser 
 	floor.body.immovable = true;
-	player = new Player(game,100,200,'star');
+	player = new Player(game,100,180,'playerAtlas','run');
 	keyboard = game.input.keyboard;
 	inputs = [];
 	for(let i = 0;i<8;i++){
@@ -42,7 +43,7 @@ function create() {
 	offsets = [];
 	names = [];
 	offsets [0] = 0;
-	offsets [1] = -32;
+	offsets [1] = -64;
 	offsets [2] = -160;
 	offsets [3] = -160;
 	offsets [4] = 0;
@@ -64,10 +65,10 @@ function create() {
 	//rect = new Phaser.Rectangle(100,200,100,100)
 	graphics = game.add.graphics(100,200)
 	graphics.beginFill(0xFF0000,0.5)
-	graphics.drawRect(-64,0,384,32)
+	graphics.drawRect(-64,-20,384,32)
 	graphics.endFill()
 	graphics.beginFill(0x0FFFFF,0.5)
-	graphics.drawRect(64,0,128,32)
+	graphics.drawRect(64,-20,128,32)
 	graphics.endFill()
 	
 	//rect.alpha = 0.5;
