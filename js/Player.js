@@ -1,13 +1,27 @@
-function Player(game, x, y, key) {	
-	Phaser.Sprite.call(this, game, x, y, key);
+function Player(game, x, y, atlas,key) {	
+	Phaser.Sprite.call(this, game, x, y,atlas, key);
+	this.x = -200
+	this.y = -200
 	this.anchor.x = 0.5;
 	this.anchor.y = 0.5;
-	this.scale.setTo(2); // just because the star is small
+	this.scale.setTo(0.1422222); // just because the star is small
 	game.physics.enable(this);
-	
+	this.x = x // super jank, I know. Prevents a frame of big character from appearing.
+	this.y = y
 	this.hitline = game.add.sprite(128+x,y,'hitline');
 	
 	game.add.existing(this);
+	
+	
+	//this.animations.add('jump', ['jump(1)'], 2, true);
+	//this.animations.add('jump', Phaser.Animation.generateFrameNames('jump(1)', 1, 2), 5, true);
+	this.animations.add('punch',[0]);
+	this.animations.add('sidestep',[1]);
+	this.animations.add('jump',[2]);
+	this.animations.add('slide',[3]);
+	this.animations.add('idle',[4]);
+	
+	
 	
 	this.up = game.input.keyboard.isDown(Phaser.Keyboard.UP) ;
 	this.down = game.input.keyboard.isDown(Phaser.Keyboard.DOWN) ;
@@ -23,10 +37,13 @@ function Player(game, x, y, key) {
 	this.delayTimer = 0; 
 	this.delay = 0.5
 	
+	
+	
+	
 	// I'll finish removing these last few physic components later
 	this.default_gravity = 5800;
 	this.body.gravity.y = this.default_gravity; // apparently this little star is Goku
-	
+	this.body.setSize(700, 600, this.body.width/2, this.body.height/2+130);
 	this.grounded = false;
 	/* Physics system
 	
@@ -121,9 +138,19 @@ Player.prototype.movement = function(){
 	this.hold_down = game.input.keyboard.isDown(Phaser.Keyboard.DOWN) ;
 	this.hold_lefty = game.input.keyboard.isDown(Phaser.Keyboard.LEFT) ;
 	this.hold_righty = game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) ;
+	if(nullCheck()&&front_obstacle[0].started&&!this.hold_lefty&&!this.hold_up&&!this.hold_down&&!this.hold_righty){
+		this.holding = false;
+		//this.delayTimer = game.time.now + this.delay*1000
+		//console.log(this.delayTimer +" yoo "+ game.time.now)
+	}
+	
+	//console.log(this.holding)
 	if(nullCheck()&&this.delayTimer<game.time.now){
+		this.animations.play("idle")
+		//console.log("hey")
 		if(this.up||this.down||this.lefty||this.righty){
 			this.delayTimer = game.time.now + this.delay*1000
+			console.log(this.delayTimer +" "+ game.time.now)
 			if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
 				if(this.hold_up){ // long jump
 					if(Math.abs(this.hitline.x-front_obstacle[0].x)<64){
@@ -134,13 +161,15 @@ Player.prototype.movement = function(){
 						
 						}
 					}
+					this.animations.play("jump");
 				}else 
 				if(this.hold_lefty){ // wall run
 					if(nullCheck()&&front_obstacle[0].type=="wallride"){
-							front_obstacle[0].started = true;
-							this.holding = true;
-						
-						}
+						front_obstacle[0].started = true;
+						this.holding = true;
+					
+					}
+					this.animations.play("sidestep")
 				}else
 				if(this.hold_down){ // grind
 					if(nullCheck()&&front_obstacle[0].type=="grind"){
@@ -148,6 +177,7 @@ Player.prototype.movement = function(){
 						this.holding = true;
 					
 					}
+					this.animations.play("slide")
 				}else
 				if(this.hold_righty){ // hack
 					if(nullCheck()&&front_obstacle[0].type=="hack"){
@@ -155,27 +185,36 @@ Player.prototype.movement = function(){
 						this.holding = true;
 					
 					}
+					this.animations.play("punch")
 				}
+				
 			}else{
 			
 				if(this.up){ // jump
 					this.hitCheck("jump");
+					this.animations.play("jump");
 				}
 				if(this.down){ // duck
 					this.hitCheck("duck");
+					this.animations.play("slide")
 				}
 				if(this.lefty){ // side step
 					this.hitCheck("sidestep");
+					this.animations.play("sidestep")
 				}
 				if(this.righty){ // punch
 					this.hitCheck("punch");
+					this.animations.play("punch")
 				}
 			}
 		}
 	}
-	if(nullCheck()&&front_obstacle[0].started&&!this.hold_lefty&&!this.hold_up&&!this.hold_down&&!this.hold_righty){
-		this.holding = false;
+		
+	if((this.hold_lefty||this.hold_up||this.hold_down||this.hold_righty)&&game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
+		this.delayTimer = game.time.now + 100
+		//console.log("hey")
 	}
+	
 	/* Physics system
 	if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
 	//if(front_obstacle[0]!=null&&front_obstacle[0].modified){
