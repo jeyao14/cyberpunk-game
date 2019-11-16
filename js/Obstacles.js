@@ -73,75 +73,21 @@ Obstacles.prototype.update = function(){
 		this.destroy();
 		if(this.missed == 2){
 			console.log("missed")
+			player.hit = true;
 		}
 	}
 
-	if(this.started&&player.holding){
+	if(this.started&&player.holding&&game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
 		if(this.x+this.width<=player.x){
 			this.ended = true
 			console.log(this.type + " hold successful")
 			this.missed = 0;
 		}
-	}else if (this.started&&!player.holding){
-		console.log(this.type + " hold dropped");
-		this.missed = 1;
-	}
-	
-	/*
-	// Physics system
-	if(this.type!='sidestep'&&this.type!='wallride'&&this.type!='grind')
-		overlapping = game.physics.arcade.overlap(player, this, null, null, this) // just gonna note that I tried 2 different methods that were more complicated and didn't work, only to look through old code and see this built-in function.
-	else{
-		if(this.type=='sidestep'&&!player.side_stepping)
-			overlapping = game.physics.arcade.overlap(player, this, null, null, this)
-		
-
-		if(this.type=='wallride'&&!player.wall_running)
-			overlapping = game.physics.arcade.overlap(player, this, null, null, this)
-	
-	}
-	if(this.type=='grind'){
-		this.body.y = 208; // without this, the rail gets banished to the shadow realm. 
-		
-		player.grinding = game.physics.arcade.collide(player, this);
-		if(!player.grinding){
-			overlapping = game.physics.arcade.overlap(player, this, null, null, this)
-		}
-		game.physics.arcade.collide(this, floor);
-
-		
-	}
-	
-	if(this.type=='punch'&&player.punching==true){
-		if(this.x-player.x>0&&this.x-player.x<64){
-			this.kill()
-			this.destroy()
-			if (front_obstacle[0]!=null&&this==front_obstacle[0]){
-				front_obstacle.shift()
-			}
+	}else if (this.started&&!this.ended){
+		if(!player.holding||!game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
+			console.log(this.type + " hold dropped");
+			this.missed = 1;
+			player.hit = true;
 		}
 	}
-	if(this.type=='hack'&&player.hacking==true){
-		if(this.x-player.x>0&&this.x-player.x<64){
-			this.kill()
-			this.destroy()
-			if (front_obstacle[0]!=null&&this==front_obstacle[0]){
-				front_obstacle.shift()
-			}
-		}
-	}
-	
-
-	
-	if(this.x<-300){
-		this.kill();
-		this.destroy();
-		// console.log("destroyed");
-	}
-	if(overlapping&&!this.collided){
-		objects_hit++;
-		player.hit = true;
-		this.collided=true;
-		text.setText("Objects hit: "+objects_hit);
-	}*/
 }
