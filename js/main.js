@@ -39,7 +39,7 @@ function create() {
 	
 	metronome = game.add.audio('30bpmsong');
 	metronome.play();
-	
+	game.time.now = 0;
 	metronome.volume = 0;
 	offsets = [];
 	names = [];
@@ -98,16 +98,18 @@ let note = [
 	[7,0,0,0],
 	[8,0,0,0],
 ]
-let offset = -0.165; // finding the right offset isn't fun...
+let offset = -0.7; // finding the right offset isn't fun...
 noteplace = 0;
 place = 8;
-nextTime = offset;
+let bpm = 30; 
+let snap = 4;
+nextTime = 1*place*((60/bpm)/snap) + offset;
 row = 0;
 time = 0
 let in_order = true;
 function beat(){
-	let bpm = 30; 
-	let snap = 4;
+
+	
 	
 	let i = note[row][noteplace]-1;
 	//console.log(nextTime);
@@ -166,12 +168,12 @@ function update() {
 		offset_text.alpha = 1 - offset_text.alpha
 		volume_text.alpha = 1 - volume_text.alpha
 	}
-	if(game.input.keyboard.justPressed(Phaser.Keyboard.EQUALS)){
+	if(game.input.keyboard.isDown(Phaser.Keyboard.EQUALS)){
 		offset += 0.01
 		offset = parseFloat(offset.toFixed(2))
 		offset_text.setText("Offset: "+offset);
 	}
-	if(game.input.keyboard.justPressed(Phaser.Keyboard.UNDERSCORE)){
+	if(game.input.keyboard.isDown(Phaser.Keyboard.UNDERSCORE)){
 		offset -= 0.01
 		offset = parseFloat(offset.toFixed(2))
 		offset_text.setText("Offset: "+offset);
