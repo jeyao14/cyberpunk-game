@@ -53,14 +53,14 @@ Player.prototype.update = function(){
 
 Player.prototype.hurt = function(){
 	if(this.hit){
-		console.log("hi")
+		//console.log("hi")
 		this.hitTimeTracker = game.time.now + this.hitTime * 1000;
 		this.hit = false;
 		
 	}
 	
 	if(this.hitTimeTracker > game.time.now){
-		console.log("hi")
+		//console.log("hi")
 		// animation stuffs
 		this.alpha= Math.abs(Math.sin((game.time.now/100)*Math.PI)); // normalizes it so that it happens every second if the number is 1000. 500 is every 2 seconds and so on.
 	}else{

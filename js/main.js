@@ -98,7 +98,7 @@ let note = [
 	[7,0,0,0],
 	[8,0,0,0],
 ]
-let offset = -0.165; // finding the right offset isn't fun...
+let offset = -0.73; // finding the right offset isn't fun...
 noteplace = 0;
 place = 8;
 nextTime = offset;
@@ -166,12 +166,12 @@ function update() {
 		offset_text.alpha = 1 - offset_text.alpha
 		volume_text.alpha = 1 - volume_text.alpha
 	}
-	if(game.input.keyboard.justPressed(Phaser.Keyboard.EQUALS)){
+	if(game.input.keyboard.isDown(Phaser.Keyboard.EQUALS)){
 		offset += 0.01
 		offset = parseFloat(offset.toFixed(2))
 		offset_text.setText("Offset: "+offset);
 	}
-	if(game.input.keyboard.justPressed(Phaser.Keyboard.UNDERSCORE)){
+	if(game.input.keyboard.isDown(Phaser.Keyboard.UNDERSCORE)){
 		offset -= 0.01
 		offset = parseFloat(offset.toFixed(2))
 		offset_text.setText("Offset: "+offset);
