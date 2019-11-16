@@ -37,9 +37,10 @@ function create() {
 		inputs[i] = keyboard.addKey(49 + i);
 	}
 	
-	//metronome = game.add.audio('30bpmsong');
-	//metronome.play();
+	metronome = game.add.audio('30bpmsong');
+	metronome.play();
 	
+	metronome.volume = 0;
 	offsets = [];
 	names = [];
 	offsets [0] = 0;
@@ -61,6 +62,18 @@ function create() {
 	text = game.add.text(600, 20)
 	text.setText("Objects hit: "+objects_hit);
 	text.addColor('#ffffff',0)
+	
+	order_text = game.add.text(30, 20)
+	order_text.setText("In order");
+	order_text.addColor('#ffffff',0)
+	
+	offset_text = game.add.text(400, 20)
+	offset_text.setText("Offset: "+offset);
+	offset_text.addColor('#ffffff',0)
+	
+	volume_text = game.add.text(200, 20)
+	volume_text.setText("Music: Off");
+	volume_text.addColor('#ffffff',0)
 	
 	//rect = new Phaser.Rectangle(100,200,100,100)
 	graphics = game.add.graphics(100,200)
@@ -85,18 +98,22 @@ let note = [
 	[7,0,0,0],
 	[8,0,0,0],
 ]
-let offset = 0.210;
+let offset = -0.23;
 noteplace = 0;
-place = 0;
+place = 8;
 nextTime = offset;
 row = 0;
+time = 0
+let in_order = true;
 function beat(){
-	let bpm = 60; 
+	let bpm = 30; 
 	let snap = 4;
 	
-
 	let i = note[row][noteplace]-1;
-	if((game.time.now/1000)>=nextTime){
+	//console.log(nextTime);
+	//time += game.time.physicsElapsed
+	// console.log(offset)
+	if((game.time.now/1000)>=nextTime+offset){
 		if(note[row][noteplace]!=0){ 
 			new Obstacles(game,900,208+offsets[i],names[i],names[i])
 		}
@@ -104,47 +121,34 @@ function beat(){
 		if(noteplace>snap-1){
 			noteplace = 0;		
 		}
-		nextTime = (game.time.now/1000)+ offset+ ((60/bpm)/snap) ;
+		nextTime = 1*place*((60/bpm)/snap) ;
+		//console.log(nextTime);
 		place++;
-		if(place % 4 == 0)
-			row++
-		// row +=3;
+		//place = Math.floor(game.time.now/1000)/
+		if(place % 4 == 0){
+			//console.log(game.time.now+" "+nextTime+" "+place);
+			//console.log(time);
+			if (in_order)
+				row++
+			else
+				row = Math.floor(Math.random()*8+1);
+		}
 		if(row>=8)
 			row=0;
 	}
-
-	/*
-	if( (game.time.now/100) % 10 == 0 ){
-		//console.log();
-		row ++;
-		if(row>8)
-			row=0;
-		
-	}*/
-	//}
 }
 
 function playHit(type){
-	
 	
 }
 
 
 function update() {	
 	player.grounded = game.physics.arcade.collide(player, floor);
-	// for(let i = 0;i<inputs.length;i++){
-		// if(inputs[i].isDown&&!held[i]){ 
-			// new Obstacles(game,900,208+offsets[i],'block',names[i])
-			// held[i] = true;
-		// }
-		// if (inputs[i].isUp){
-			// held[i] = false;
-		// }
-	// }
+	
 	beat();
 	
 	if(front_obstacle[0]!=null){
-		//console.log(front_obstacle[0].type);
 		if(front_obstacle[0]!=null){
 			if(front_obstacle[0].body.x<=player.body.x-64){
 				if(front_obstacle[0].missed==2&&front_obstacle[0].modified==false){ // handles misses for taps
@@ -158,7 +162,35 @@ function update() {
 	}
 	if(game.input.keyboard.justPressed(Phaser.Keyboard.SPACEBAR)){
 		graphics.alpha = 1 - (graphics.alpha)
-		//console.log(graphics.alpha);
+		order_text.alpha = 1 - order_text.alpha
+		offset_text.alpha = 1 - offset_text.alpha
+		volume_text.alpha = 1 - volume_text.alpha
+	}
+	if(game.input.keyboard.justPressed(Phaser.Keyboard.EQUALS)){
+		offset += 0.01
+		offset = parseFloat(offset.toFixed(2))
+		console.log("hey there")
+		offset_text.setText("Offset: "+offset);
+	}
+	if(game.input.keyboard.justPressed(Phaser.Keyboard.UNDERSCORE)){
+		offset -= 0.01
+		offset = parseFloat(offset.toFixed(2))
+		console.log("hey there")
+		offset_text.setText("Offset: "+offset);
+	}	
+	if(game.input.keyboard.justPressed(Phaser.Keyboard.C)){
+		in_order = !in_order
+		if(in_order)
+			order_text.setText("In order")
+		else
+			order_text.setText("Random")
+	}
+	if(game.input.keyboard.justPressed(Phaser.Keyboard.V)){
+		metronome.volume = 1 - metronome.volume
+		if(metronome.volume == 1)
+			volume_text.setText("Music: On");
+		else
+			volume_text.setText("Music: Off");
 	}
 }
 function render() {

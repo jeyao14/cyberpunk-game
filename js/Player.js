@@ -21,7 +21,7 @@ function Player(game, x, y, atlas,key) {
 	this.animations.add('slide',[3]);
 	this.animations.add('idle',[4]);
 	
-	
+	this.original_height = y;
 	
 	this.up = game.input.keyboard.isDown(Phaser.Keyboard.UP) ;
 	this.down = game.input.keyboard.isDown(Phaser.Keyboard.DOWN) ;
@@ -42,42 +42,9 @@ function Player(game, x, y, atlas,key) {
 	
 	// I'll finish removing these last few physic components later
 	this.default_gravity = 5800;
-	this.body.gravity.y = this.default_gravity; // apparently this little star is Goku
+	//this.body.gravity.y = this.default_gravity; // apparently this little star is Goku
 	this.body.setSize(700, 600, this.body.width/2, this.body.height/2+130);
 	this.grounded = false;
-	/* Physics system
-	
-	// duck handling stuff
-	this.duckTime = 0;
-	this.duckNext = 0;
-	this.duckDuration = 0.5;
-	this.duckCoolDown = this.duckDuration+0.2;
-	//
-	
-	// phase/sidestep handling
-	this.phaseTime = 0;
-	this.phaseNext = 0;
-	this.phaseDuration = 0.5;
-	this.phaseCoolDown = this.phaseDuration+0.2;
-	//
-	
-	this.punchTime = 0;
-	this.punchNext = 0;
-	this.punchDuration = 0.2;
-	this.punchCoolDown = this.punchDuration+0.3;
-	this.fist = game.add.sprite(this.body.x + 64,this.body.y,'block');
-	this.fist.alpha = 0;
-	
-	this.side_stepping = false;
-	this.wall_running = false;
-	this.punching = false;
-	this.hacking = false;
-	this.grinding;
-	
-	this.hit = false;
-	this.hitTime = 1;
-	this.hitTimeTracker = 0;
-	*/
 	
 }
 
@@ -138,165 +105,81 @@ Player.prototype.movement = function(){
 	this.hold_down = game.input.keyboard.isDown(Phaser.Keyboard.DOWN) ;
 	this.hold_lefty = game.input.keyboard.isDown(Phaser.Keyboard.LEFT) ;
 	this.hold_righty = game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) ;
+	
+	if(this.hold_up&&game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)&&this.y<this.original_height+10){
+		this.y += 0.5
+	}
 	if(nullCheck()&&front_obstacle[0].started&&!this.hold_lefty&&!this.hold_up&&!this.hold_down&&!this.hold_righty){
 		this.holding = false;
-		//this.delayTimer = game.time.now + this.delay*1000
-		//console.log(this.delayTimer +" yoo "+ game.time.now)
 	}
 	
 	//console.log(this.holding)
-	if(nullCheck()&&this.delayTimer<game.time.now){
+	if(this.delayTimer<game.time.now){
 		this.animations.play("idle")
+		this.y = this.original_height+10;
 		//console.log("hey")
-		if(this.up||this.down||this.lefty||this.righty){
-			this.delayTimer = game.time.now + this.delay*1000
-			console.log(this.delayTimer +" "+ game.time.now)
-			if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
-				if(this.hold_up){ // long jump
-					if(Math.abs(this.hitline.x-front_obstacle[0].x)<64){
+		if(nullCheck()){
+			if(this.up||this.down||this.lefty||this.righty){
+				this.delayTimer = game.time.now + this.delay*1000
+				if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
+					if(this.hold_up){ // long jump
+						if(Math.abs(this.hitline.x-front_obstacle[0].x)<64){
+							if(nullCheck()&&front_obstacle[0].type=="longjump"){
+								front_obstacle[0].started = true;
+								this.holding = true;	
+							}
+						}
+						this.animations.play("jump");
+						this.y = this.original_height-50
 						
-						if(nullCheck()&&front_obstacle[0].type=="longjump"){
+					}else 
+					if(this.hold_lefty){ // wall run
+						if(nullCheck()&&front_obstacle[0].type=="wallride"){
 							front_obstacle[0].started = true;
 							this.holding = true;
-						
 						}
+						this.y = this.original_height-35;
+						this.animations.play("run")
+					}else
+					if(this.hold_down){ // grind
+						if(nullCheck()&&front_obstacle[0].type=="grind"){
+							front_obstacle[0].started = true;
+							this.holding = true;
+							this.y = this.original_height-20;
+						}
+						this.y = this.original_height-25;
+						this.animations.play("slide")
+					}else
+					if(this.hold_righty){ // hack
+						if(nullCheck()&&front_obstacle[0].type=="hack"){
+							front_obstacle[0].started = true;
+							this.holding = true;		
+						}
+						this.animations.play("punch")
+					}	
+				}else{
+					if(this.up){ // jump
+						this.hitCheck("jump");
+						this.animations.play("jump");
+						this.y = this.original_height-25;
 					}
-					this.animations.play("jump");
-				}else 
-				if(this.hold_lefty){ // wall run
-					if(nullCheck()&&front_obstacle[0].type=="wallride"){
-						front_obstacle[0].started = true;
-						this.holding = true;
-					
+					if(this.down){ // duck
+						this.hitCheck("duck");
+						this.animations.play("slide")
 					}
-					this.animations.play("sidestep")
-				}else
-				if(this.hold_down){ // grind
-					if(nullCheck()&&front_obstacle[0].type=="grind"){
-						front_obstacle[0].started = true;
-						this.holding = true;
-					
+					if(this.lefty){ // side step
+						this.hitCheck("sidestep");
+						this.animations.play("sidestep")
 					}
-					this.animations.play("slide")
-				}else
-				if(this.hold_righty){ // hack
-					if(nullCheck()&&front_obstacle[0].type=="hack"){
-						front_obstacle[0].started = true;
-						this.holding = true;
-					
+					if(this.righty){ // punch
+						this.hitCheck("punch");
+						this.animations.play("punch")
 					}
-					this.animations.play("punch")
-				}
-				
-			}else{
-			
-				if(this.up){ // jump
-					this.hitCheck("jump");
-					this.animations.play("jump");
-				}
-				if(this.down){ // duck
-					this.hitCheck("duck");
-					this.animations.play("slide")
-				}
-				if(this.lefty){ // side step
-					this.hitCheck("sidestep");
-					this.animations.play("sidestep")
-				}
-				if(this.righty){ // punch
-					this.hitCheck("punch");
-					this.animations.play("punch")
 				}
 			}
 		}
-	}
-		
+	}	
 	if((this.hold_lefty||this.hold_up||this.hold_down||this.hold_righty)&&game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
 		this.delayTimer = game.time.now + 100
-		//console.log("hey")
 	}
-	
-	/* Physics system
-	if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
-	//if(front_obstacle[0]!=null&&front_obstacle[0].modified){
-		//console.log("hi")
-		if(game.input.keyboard.isDown(Phaser.Keyboard.UP)&&this.grounded){ // long jump
-		
-			this.body.velocity.y = -1500;
-		}
-		
-		if(game.input.keyboard.isDown(Phaser.Keyboard.LEFT)&&this.grounded){ // long jump
-		
-			this.body.velocity.y = -1800;
-			this.wall_running = true;
-			this.tint = 0x000000
-		}else if(this.grounded){
-			this.wall_running = false;
-		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.DOWN)&&this.grounded){ // long jump
-		
-			this.body.velocity.y = -1000;
-		}
-		if(game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){ // punch
-			this.hacking = true;
-		}else{	
-			this.hacking = false;
-			
-		}
-	}else{
-	
-		if(game.input.keyboard.isDown(Phaser.Keyboard.UP)&&this.grounded){ // jump
-		
-			this.body.velocity.y = -1100;
-		}
-		if(this.duckNext<game.time.now&&game.input.keyboard.isDown(Phaser.Keyboard.DOWN)&&this.grounded){ // duck
-			this.duckTime = game.time.now + (this.duckDuration*1000);
-			this.duckNext = game.time.now + (this.duckCoolDown*1000);
-		}
-		if(this.duckTime>game.time.now){
-			this.body.setSize(24, 11, 0, 11);
-		}else{
-		
-			this.body.setSize(24, 22, 0, 0);
-		}
-		
-		if(this.phaseNext<game.time.now&&game.input.keyboard.justPressed(Phaser.Keyboard.LEFT)){ // side step
-		
-			this.side_stepping = true;
-			this.phaseTime = game.time.now + (this.phaseDuration*1000);
-			this.phaseNext = game.time.now + (this.phaseCoolDown*1000);
-			
-			this.tint = 0x000000
-		}
-		if(this.phaseTime<game.time.now){
-			this.side_stepping = false;
-			this.tint = 0xffffff
-			//console.log(this.phaseTime)
-		}
-		
-		if(this.punchNext<game.time.now&&game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){ // punch
-			this.punchTime = game.time.now + (this.punchDuration*1000);
-			this.punchNext = game.time.now + (this.punchCoolDown*1000);
-		}
-		if(this.punchTime>game.time.now){
-			this.punching = true;
-			this.fist.alpha = 1;
-		}else{
-			this.punching = false;
-			this.fist.alpha = 0;
-		}
-	}
-
-	// Special cases 
-	if(this.wall_running&&!this.grounded){
-		this.tint = 0x000000;
-	}else if(!this.side_stepping){
-		this.tint = 0xffffff
-	}
-	if(this.grinding){
-		this.body.gravity.y = 0;
-	}else{
-		this.body.gravity.y = 5800;
-	}
-
-	*/
 }
