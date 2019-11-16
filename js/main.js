@@ -142,7 +142,6 @@ function playHit(type){
 	
 }
 
-
 function update() {	
 	player.grounded = game.physics.arcade.collide(player, floor);
 	
@@ -153,6 +152,7 @@ function update() {
 			if(front_obstacle[0].body.x<=player.body.x-64){
 				if(front_obstacle[0].missed==2&&front_obstacle[0].modified==false){ // handles misses for taps
 					console.log("missed")
+					player.hit = true;
 					front_obstacle[0].missed=0
 				}
 				front_obstacle[0].queued = false;
@@ -169,13 +169,11 @@ function update() {
 	if(game.input.keyboard.justPressed(Phaser.Keyboard.EQUALS)){
 		offset += 0.01
 		offset = parseFloat(offset.toFixed(2))
-		console.log("hey there")
 		offset_text.setText("Offset: "+offset);
 	}
 	if(game.input.keyboard.justPressed(Phaser.Keyboard.UNDERSCORE)){
 		offset -= 0.01
 		offset = parseFloat(offset.toFixed(2))
-		console.log("hey there")
 		offset_text.setText("Offset: "+offset);
 	}	
 	if(game.input.keyboard.justPressed(Phaser.Keyboard.C)){

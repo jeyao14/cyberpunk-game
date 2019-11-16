@@ -12,9 +12,7 @@ function Player(game, x, y, atlas,key) {
 	
 	game.add.existing(this);
 	
-	
-	//this.animations.add('jump', ['jump(1)'], 2, true);
-	//this.animations.add('jump', Phaser.Animation.generateFrameNames('jump(1)', 1, 2), 5, true);
+
 	this.animations.add('punch',[0]);
 	this.animations.add('sidestep',[1]);
 	this.animations.add('jump',[2]);
@@ -37,14 +35,11 @@ function Player(game, x, y, atlas,key) {
 	this.delayTimer = 0; 
 	this.delay = 0.5
 	
+	this.hit = false;
+	this.hitTimeTracker = 0
+	this.hitTime = 0.5
 	
-	
-	
-	// I'll finish removing these last few physic components later
-	this.default_gravity = 5800;
-	//this.body.gravity.y = this.default_gravity; // apparently this little star is Goku
 	this.body.setSize(700, 600, this.body.width/2, this.body.height/2+130);
-	this.grounded = false;
 	
 }
 
@@ -53,27 +48,24 @@ Player.prototype.constructor = Player;
 
 Player.prototype.update = function(){
 	this.movement();
-	//this.hurt();
+	this.hurt();
 }
 
 Player.prototype.hurt = function(){
-	/*
 	if(this.hit){
+		console.log("hi")
 		this.hitTimeTracker = game.time.now + this.hitTime * 1000;
 		this.hit = false;
+		
 	}
+	
 	if(this.hitTimeTracker > game.time.now){
+		console.log("hi")
 		// animation stuffs
 		this.alpha= Math.abs(Math.sin((game.time.now/100)*Math.PI)); // normalizes it so that it happens every second if the number is 1000. 500 is every 2 seconds and so on.
 	}else{
 		this.alpha = 1;
-	}*/
-	// if(front_obstacle[0]!=null){
-		// if(front_obstacle[0].modified)
-			// console.log("hey");
-		// else
-			// console.log("yo");
-	// }
+	}
 }
 function nullCheck(){
 	return front_obstacle[0]!=null
@@ -93,6 +85,7 @@ Player.prototype.hitCheck = function(type){
 			front_obstacle[0].queued = false;
 			front_obstacle.shift();
 			console.log("missed");
+			this.hit = true;
 		}
 	}
 }

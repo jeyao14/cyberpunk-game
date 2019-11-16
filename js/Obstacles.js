@@ -73,6 +73,7 @@ Obstacles.prototype.update = function(){
 		this.destroy();
 		if(this.missed == 2){
 			console.log("missed")
+			player.hit = true;
 		}
 	}
 
@@ -86,6 +87,7 @@ Obstacles.prototype.update = function(){
 		if(!player.holding||!game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
 			console.log(this.type + " hold dropped");
 			this.missed = 1;
+			player.hit = true;
 		}
 	}
 }
