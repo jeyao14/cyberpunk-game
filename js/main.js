@@ -98,7 +98,7 @@ let note = [
 	[7,0,0,0],
 	[8,0,0,0],
 ]
-let offset = -0.23;
+let offset = -0.165; // finding the right offset isn't fun...
 noteplace = 0;
 place = 8;
 nextTime = offset;
